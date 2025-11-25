@@ -12,21 +12,59 @@ public class MainMenuManager : MonoBehaviour
     private int playerAge;
     public Button saveButton;
     public Button playButton;
+    public Button deleteMeButton;
+    public Toggle Toggle;
+    public bool SaveData = false;
 
     void Start()
     {
+        Debug.Log(PlayerPrefs.GetString("PlayerName"));
         saveButton.onClick.AddListener(OnSaveButtonClicked);
         playButton.onClick.AddListener(LoadLevel1);
+        deleteMeButton.onClick.AddListener(ForgetMe);
+
+
+        if (PlayerPrefs.GetString(key: "PlayerName") != "")
+        {
+            Debug.Log("Datos encontrados");
+            playerNameInputField.enabled = false;
+            playerAgeInputField.enabled = false;
+        }
+        else {
+            Debug.Log("No hay datos de usuario");
+        }
     }
 
 public void OnSaveButtonClicked()
     {
+        
         String playerName = playerNameInputField.text;
         playerAge = Int32.Parse(playerAgeInputField.text);
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.SetInt("PlayerAge", playerAge);
-        PlayerPrefs.Save();
-        
+
+        SaveData = Toggle.isOn;
+        if (SaveData)
+        {
+            PlayerPrefs.Save();
+            Debug.Log("La información se ha guardado en el sistema");
+        }
+        else
+        {
+            Debug.Log("La información se guardará temporalmente");
+        }
+
+        playerNameInputField.enabled = false;
+        playerAgeInputField.enabled = false;
+
+    }
+
+    public void ForgetMe()
+    {
+                PlayerPrefs.DeleteAll();
+        Debug.Log("Deleted all player data");
+        playerNameInputField.enabled = true;
+        playerAgeInputField.enabled = true;
     }
 
    public void LoadLevel1()
