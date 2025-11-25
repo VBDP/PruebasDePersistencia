@@ -29,6 +29,8 @@ public class MainMenuManager : MonoBehaviour
             Debug.Log("Datos encontrados");
             playerNameInputField.enabled = false;
             playerAgeInputField.enabled = false;
+            playerNameInputField.text = PlayerPrefs.GetString(key: "PlayerName");
+            playerAgeInputField.text = PlayerPrefs.GetString(key: "PlayerAge");
         }
         else {
             Debug.Log("No hay datos de usuario");
@@ -65,6 +67,9 @@ public void OnSaveButtonClicked()
         Debug.Log("Deleted all player data");
         playerNameInputField.enabled = true;
         playerAgeInputField.enabled = true;
+        playerNameInputField.text = "";
+        playerAgeInputField.text = ""
+            ;
     }
 
    public void LoadLevel1()
