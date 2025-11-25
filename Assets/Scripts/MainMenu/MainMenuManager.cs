@@ -31,9 +31,11 @@ public class MainMenuManager : MonoBehaviour
             playerAgeInputField.enabled = false;
             playerNameInputField.text = PlayerPrefs.GetString(key: "PlayerName");
             playerAgeInputField.text = PlayerPrefs.GetString(key: "PlayerAge");
+            saveButton.enabled = false;
         }
         else {
             Debug.Log("No hay datos de usuario");
+            saveButton.enabled = true;
         }
     }
 
@@ -58,6 +60,7 @@ public void OnSaveButtonClicked()
 
         playerNameInputField.enabled = false;
         playerAgeInputField.enabled = false;
+        saveButton.enabled = false;
 
     }
 
@@ -70,6 +73,7 @@ public void OnSaveButtonClicked()
         playerNameInputField.text = "";
         playerAgeInputField.text = ""
             ;
+        saveButton.enabled = true;
     }
 
    public void LoadLevel1()
