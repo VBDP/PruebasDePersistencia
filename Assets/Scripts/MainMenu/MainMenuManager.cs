@@ -19,44 +19,48 @@ public class MainMenuManager : MonoBehaviour
     private string dataFilePath;
     private bool SaveData = false;
 
-    void Start()
+   void Start()
+{
+    dataFilePath = Path.Combine(Application.persistentDataPath, "playerdata.json");
+    EnsureDataFileExists();
+    saveButton.onClick.AddListener(OnSaveButtonClicked);
+    playButton.onClick.AddListener(LoadLevel1);
+    deleteMeButton.onClick.AddListener(ForgetMe);
+
+    // Habilitar los campos de entrada al inicio
+    playerNameInputField.enabled = true;
+    playerAgeInputField.enabled = true;
+    saveButton.enabled = true;
+    deleteMeButton.enabled = false;
+
+    if (File.Exists(dataFilePath))
     {
-        dataFilePath = Path.Combine(Application.persistentDataPath, "playerdata.json");
-        EnsureDataFileExists();
-        saveButton.onClick.AddListener(OnSaveButtonClicked);
-        playButton.onClick.AddListener(LoadLevel1);
-        deleteMeButton.onClick.AddListener(ForgetMe);
-
-        if (File.Exists(dataFilePath))
+        try
         {
-            try
+            string json = File.ReadAllText(dataFilePath);
+            PlayerData data = JsonConvert.DeserializeObject<PlayerData>(json);
+            if (data != null)
             {
-                string json = File.ReadAllText(dataFilePath);
-                PlayerData data = JsonConvert.DeserializeObject<PlayerData>(json);
-                if (data != null)
-                {
-                    playerNameInputField.text = data.playerName;
-                    playerAgeInputField.text = data.playerAge.ToString();
-                    Toggle.isOn = data.SaveData;
+                playerNameInputField.text = data.playerName;
+                playerAgeInputField.text = data.playerAge.ToString();
+                Toggle.isOn = data.SaveData;
 
+                // Deshabilitar solo si hay datos guardados
+                if (data.SaveData)
+                {
                     playerNameInputField.enabled = false;
                     playerAgeInputField.enabled = false;
                     saveButton.enabled = false;
-                    deleteMeButton.enabled = data.SaveData;
+                    deleteMeButton.enabled = true;
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("Error leyendo JSON: " + ex.Message);
-            }
         }
-        else
+        catch (Exception ex)
         {
-
-            saveButton.enabled = true;
-            deleteMeButton.enabled = false;
+            Debug.LogWarning("Error leyendo JSON: " + ex.Message);
         }
     }
+}
 
     public void OnSaveButtonClicked()
     {
@@ -150,5 +154,4 @@ private void SavePlayerDataToFile(PlayerData data)
     string json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
     File.WriteAllText(dataFilePath, json);
 }
-// ...existing code...
 }
