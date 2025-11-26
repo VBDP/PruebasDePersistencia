@@ -8,6 +8,9 @@ public class Level1manager : MonoBehaviour
 {
 public TextMeshProUGUI PlayerNameText;
 public TextMeshProUGUI PlayerAgeText;
+    public Button MainMenuButton;
+    public Button QuitButton;
+    public Button Level2Button;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

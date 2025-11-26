@@ -30,7 +30,7 @@ public class MainMenuManager : MonoBehaviour
             playerNameInputField.enabled = false;
             playerAgeInputField.enabled = false;
             playerNameInputField.text = PlayerPrefs.GetString(key: "PlayerName");
-            playerAgeInputField.text = PlayerPrefs.GetString(key: "PlayerAge");
+            playerAgeInputField.text = PlayerPrefs.GetInt("PlayerAge", 0).ToString();
             saveButton.enabled = false;
         }
         else {
