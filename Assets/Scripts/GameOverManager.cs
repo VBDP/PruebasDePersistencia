@@ -22,6 +22,12 @@ public class GameOverManager : MonoBehaviour
         {
              Application.Quit();
         #if UNITY_EDITOR
+        if(PlayerPrefs.GetInt("DataSaved", 0) == 0)
+        {
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+        }
+        
         UnityEditor.EditorApplication.isPlaying = false;
          #endif
         }

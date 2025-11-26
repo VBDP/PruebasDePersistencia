@@ -66,15 +66,20 @@ public class MainMenuManager : MonoBehaviour
         SaveData = Toggle.isOn;
         if (SaveData)
         {
-            PlayerPrefs.Save();
+            
             Debug.Log("La informaci�n se ha guardado en el sistema");
             deleteMeButton.enabled = true;
+            PlayerPrefs.SetInt("DataSaved", 1);
+            PlayerPrefs.Save();
         }
         else
         {
             deleteMeButton.enabled = false;
             Debug.Log("La informaci�n se guardar� temporalmente");
+            PlayerPrefs.SetInt("DataSaved", 0);
+            
         }
+        
 
         playerNameInputField.enabled = false;
         playerAgeInputField.enabled = false;
@@ -84,13 +89,13 @@ public class MainMenuManager : MonoBehaviour
 
     public void ForgetMe()
     {
-                PlayerPrefs.DeleteAll();
+        PlayerPrefs.DeleteAll();
         Debug.Log("Deleted all player data");
+        PlayerPrefs.Save();
         playerNameInputField.enabled = true;
         playerAgeInputField.enabled = true;
         playerNameInputField.text = "";
-        playerAgeInputField.text = ""
-            ;
+        playerAgeInputField.text = "";
         saveButton.enabled = true;
     }
 

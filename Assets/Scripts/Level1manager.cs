@@ -39,10 +39,15 @@ public TextMeshProUGUI PlayerAgeText;
 
     public void ExitGame()
     {
+        if(PlayerPrefs.GetInt("DataSaved", 0) == 0)
+        {
+            PlayerPrefs.DeleteAll();
+        }
+        
         Application.Quit();
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        #endif
     }
 
     public void LoadLevel2()
