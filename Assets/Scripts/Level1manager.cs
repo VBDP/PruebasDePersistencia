@@ -19,11 +19,34 @@ public TextMeshProUGUI PlayerAgeText;
         int playerAge = PlayerPrefs.GetInt("PlayerAge", 0);
         PlayerAgeText.text += " " + playerAge;
 
+        MainMenuButton.onClick.AddListener(LoadMainMenu);
+        QuitButton.onClick.AddListener(ExitGame);
+        Level2Button.onClick.AddListener(LoadLevel2);
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
         
-    }  
+    }
+
+    public void LoadMainMenu ()
+    {
+        SceneManager.LoadSceneAsync("MainMenu");
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
+    public void LoadLevel2()
+    {
+        SceneManager.LoadSceneAsync("Level2");
+    }
 }
