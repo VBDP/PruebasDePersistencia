@@ -1,113 +1,154 @@
 using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Newtonsoft.Json;
 
 public class MainMenuManager : MonoBehaviour
 {
     public TMP_InputField playerNameInputField;
     public TMP_InputField playerAgeInputField;
     public TextMeshProUGUI AdvertenciaText;
-    private String playerName;
-    private int playerAge;
     public Button saveButton;
     public Button playButton;
     public Button deleteMeButton;
     public Toggle Toggle;
-    public bool SaveData = false;
+
+    private string dataFilePath;
+    private bool SaveData = false;
 
     void Start()
     {
-        Debug.Log(PlayerPrefs.GetString("PlayerName"));
+        dataFilePath = Path.Combine(Application.persistentDataPath, "playerdata.json");
+        EnsureDataFileExists();
         saveButton.onClick.AddListener(OnSaveButtonClicked);
         playButton.onClick.AddListener(LoadLevel1);
         deleteMeButton.onClick.AddListener(ForgetMe);
 
-
-        if (PlayerPrefs.GetString(key: "PlayerName") != "")
+        if (File.Exists(dataFilePath))
         {
-            Debug.Log("Datos encontrados");
-            playerNameInputField.enabled = false;
-            playerAgeInputField.enabled = false;
-            playerNameInputField.text = PlayerPrefs.GetString(key: "PlayerName");
-            playerAgeInputField.text = PlayerPrefs.GetInt("PlayerAge", 0).ToString();
-            saveButton.enabled = false;
+            try
+            {
+                string json = File.ReadAllText(dataFilePath);
+                PlayerData data = JsonConvert.DeserializeObject<PlayerData>(json);
+                if (data != null)
+                {
+                    playerNameInputField.text = data.playerName;
+                    playerAgeInputField.text = data.playerAge.ToString();
+                    Toggle.isOn = data.SaveData;
+
+                    playerNameInputField.enabled = false;
+                    playerAgeInputField.enabled = false;
+                    saveButton.enabled = false;
+                    deleteMeButton.enabled = data.SaveData;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Error leyendo JSON: " + ex.Message);
+            }
         }
-        else {
-            Debug.Log("No hay datos de usuario");
+        else
+        {
+
             saveButton.enabled = true;
-        }
-    }
-
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Tab))
-        {
-            if(playerNameInputField.isFocused)
-            {
-                playerAgeInputField.Select();
-            }
-            else if(playerAgeInputField.isFocused)
-            {
-                Toggle.Select();
-            }
+            deleteMeButton.enabled = false;
         }
     }
 
     public void OnSaveButtonClicked()
     {
-        
-        String playerName = playerNameInputField.text;
-        playerAge = Int32.Parse(playerAgeInputField.text);
-        PlayerPrefs.SetString("PlayerName", playerName);
-        PlayerPrefs.SetInt("PlayerAge", playerAge);
+        if (!int.TryParse(playerAgeInputField.text, out int age))
+        {
+            AdvertenciaText.text = "Edad no válida.";
+            return;
+        }
 
         SaveData = Toggle.isOn;
+        PlayerData data = new PlayerData
+        {
+            playerName = playerNameInputField.text,
+            playerAge = age,
+            SaveData = SaveData
+        };
+
         if (SaveData)
         {
-            
-            Debug.Log("La informaci�n se ha guardado en el sistema");
-            deleteMeButton.enabled = true;
-            PlayerPrefs.SetInt("DataSaved", 1);
-            PlayerPrefs.Save();
+            try
+            {
+                File.WriteAllText(dataFilePath, JsonConvert.SerializeObject(data));
+                deleteMeButton.enabled = true;
+                Debug.Log("La información se ha guardado en JSON");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Error guardando JSON: " + ex.Message);
+            }
         }
         else
         {
+            if (File.Exists(dataFilePath)) File.Delete(dataFilePath);
             deleteMeButton.enabled = false;
-            Debug.Log("La informaci�n se guardar� temporalmente");
-            PlayerPrefs.SetInt("DataSaved", 0);
-            
         }
-        
 
         playerNameInputField.enabled = false;
         playerAgeInputField.enabled = false;
         saveButton.enabled = false;
-
     }
 
     public void ForgetMe()
     {
-        PlayerPrefs.DeleteAll();
-        Debug.Log("Deleted all player data");
-        PlayerPrefs.Save();
+        if (File.Exists(dataFilePath)) File.Delete(dataFilePath);
         playerNameInputField.enabled = true;
         playerAgeInputField.enabled = true;
         playerNameInputField.text = "";
         playerAgeInputField.text = "";
         saveButton.enabled = true;
+        deleteMeButton.enabled = false;
     }
 
-   public void LoadLevel1()
+    public void LoadLevel1()
     {
-        if (playerNameInputField.text != "" && playerAgeInputField.text != "")
-        {
+        if (!string.IsNullOrEmpty(playerNameInputField.text) && !string.IsNullOrEmpty(playerAgeInputField.text))
             SceneManager.LoadScene("Level1");
-        }
         else
-        {
             AdvertenciaText.text = "Por favor, ingresa tu nombre y edad antes de jugar.";
+    }
+
+    // helper: crea carpeta/archivo por defecto si hace falta
+private void EnsureDataFileExists()
+{
+    string dir = Path.GetDirectoryName(dataFilePath);
+    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
+
+    if (!File.Exists(dataFilePath))
+    {
+        var defaultData = new PlayerData { playerName = "", playerAge = 0, SaveData = false };
+        string json = JsonConvert.SerializeObject(defaultData, Newtonsoft.Json.Formatting.Indented);
+        try
+        {
+            File.WriteAllText(dataFilePath, json);
+            Debug.Log($"[MainMenuManager] JSON creado: {dataFilePath}");
         }
-    }   
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[MainMenuManager] No se pudo crear JSON: {ex.Message}");
+        }
+    }
+}
+
+// helper: uso centralizado para guardar
+private void SavePlayerDataToFile(PlayerData data)
+{
+    string dir = Path.GetDirectoryName(dataFilePath);
+    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
+
+    string json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
+    File.WriteAllText(dataFilePath, json);
+}
+// ...existing code...
 }
