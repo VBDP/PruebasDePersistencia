@@ -8,6 +8,7 @@ public class MainMenuManager : MonoBehaviour
 {
     public TMP_InputField playerNameInputField;
     public TMP_InputField playerAgeInputField;
+    public TextMeshProUGUI AdvertenciaText;
     private String playerName;
     private int playerAge;
     public Button saveButton;
@@ -39,7 +40,22 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-public void OnSaveButtonClicked()
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Tab))
+        {
+            if(playerNameInputField.isFocused)
+            {
+                playerAgeInputField.Select();
+            }
+            else if(playerAgeInputField.isFocused)
+            {
+                Toggle.Select();
+            }
+        }
+    }
+
+    public void OnSaveButtonClicked()
     {
         
         String playerName = playerNameInputField.text;
@@ -51,11 +67,13 @@ public void OnSaveButtonClicked()
         if (SaveData)
         {
             PlayerPrefs.Save();
-            Debug.Log("La información se ha guardado en el sistema");
+            Debug.Log("La informaciï¿½n se ha guardado en el sistema");
+            deleteMeButton.enabled = true;
         }
         else
         {
-            Debug.Log("La información se guardará temporalmente");
+            deleteMeButton.enabled = false;
+            Debug.Log("La informaciï¿½n se guardarï¿½ temporalmente");
         }
 
         playerNameInputField.enabled = false;
@@ -78,6 +96,13 @@ public void OnSaveButtonClicked()
 
    public void LoadLevel1()
     {
-        SceneManager.LoadSceneAsync("Level1");
+        if (playerNameInputField.text != "" && playerAgeInputField.text != "")
+        {
+            SceneManager.LoadScene("Level1");
+        }
+        else
+        {
+            AdvertenciaText.text = "Por favor, ingresa tu nombre y edad antes de jugar.";
+        }
     }   
 }
